@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Como en Casa | Auténtica Comida Cubana en Las Palmas</title>
+    <meta name="description" content="Disfruta del auténtico sabor cubano en Las Palmas de Gran Canaria. Menú semanal, ropa vieja, arroz congrí y desayunos caseros en Av. Primero de Mayo.">
+    <meta name="keywords" content="comida cubana las palmas, restaurante cubano cerca de mi, desayunos cubanos gran canaria, menu del dia las palmas">
+    <link rel="canonical" href="https://tuwebcubana.com">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Como en Casa - Sabor Cubano",
+      "image": "https://images.unsplash.com/photo-1589113103503-496a9dca682e",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Av. Primero de Mayo 14",
+        "addressLocality": "Las Palmas de Gran Canaria",
+        "addressRegion": "Las Palmas",
+        "postalCode": "35002",
+        "addressCountry": "ES"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 28.1090, 
+        "longitude": -15.4190
+      },
+      "url": "https://tuwebcubana.com",
+      "telephone": "+34000000000",
+      "servesCuisine": "Cuban",
+      "priceRange": "$$"
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,900;1,400;1,900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #050505; color: #fff; scroll-behavior: smooth; }
+        .font-black-italic { font-weight: 900; font-style: italic; text-transform: uppercase; }
+        
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        .hero-bg {
+            background: linear-gradient(to bottom, rgba(5,5,5,0.8), #050505), 
+                        url('https://images.unsplash.com/photo-1589113103503-496a9dca682e?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+        }
+
+        .nav-glass { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .btn-orange { background: #ea580c; transition: 0.3s; box-shadow: 0 10px 20px rgba(234, 88, 12, 0.2); }
+        .btn-orange:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(234, 88, 12, 0.4); }
+        
+        .gallery-img { width: 100%; height: 300px; object-fit: cover; border-radius: 20px; transition: 0.5s; filter: grayscale(40%); }
+        .gallery-img:hover { filter: grayscale(0%); transform: scale(1.02); }
+
+        .input-review { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; outline: none; width: 100%; font-size: 13px; }
+        .input-review:focus { border-color: #ea580c; }
+    </style>
+</head>
+<body>
+
+    <nav class="fixed top-0 w-full z-50 nav-glass px-6 py-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <span class="font-black-italic italic text-xl tracking-tighter">COMO EN <span class="text-orange-600">CASA.</span></span>
+            <div class="hidden md:flex gap-8 text-[10px] font-black uppercase tracking-widest">
+                <a href="#inicio" class="hover:text-orange-600 transition">Inicio</a>
+                <a href="carta.html" class="hover:text-orange-600 transition">La Carta</a>
+                <a href="reservas.html" class="hover:text-orange-600 transition text-orange-500">Reservar</a>
+                <a href="#galeria" class="hover:text-orange-600 transition">Galería</a>
+                <a href="direccion.html" class="hover:text-orange-600 transition">Ubicación</a>
+            </div>
+            <a id="nav-wa" href="#" class="text-orange-600 text-lg"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </nav>
+
+    <section id="inicio" class="h-screen flex items-center justify-center hero-bg px-6 pt-20">
+        <div class="text-center">
+            <div id="status-badge" class="mb-6 reveal"></div>
+            <h1 class="text-6xl md:text-9xl font-black-italic italic leading-none reveal" style="transition-delay: 0.2s">
+                EL SABOR <br><span class="text-orange-600">CUBANO.</span>
+            </h1>
+            <p class="mt-6 text-gray-400 font-bold uppercase tracking-[0.4em] text-[10px] md:text-xs reveal" style="transition-delay: 0.4s">
+                Cafetería & Auténtica Comida Casera Cubana en Las Palmas
+            </p>
+            <div class="mt-12 flex flex-col md:flex-row gap-4 justify-center reveal" style="transition-delay: 0.6s">
+                <a href="carta.html" class="btn-orange px-12 py-5 rounded-full font-black-italic italic text-sm">Explorar Carta</a>
+                <a href="reservas.html" class="bg-white/5 backdrop-blur-md px-12 py-5 rounded-full font-black-italic italic text-sm border border-white/10 hover:bg-white/10 transition">Reservar Mesa</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="menu-semanal" class="hidden py-24 px-6 max-w-5xl mx-auto">
+        <div class="bg-[#111] p-8 md:p-12 rounded-[40px] border border-orange-600/30 reveal">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-10">
+                <h2 class="text-4xl font-black-italic italic leading-none">ESPECIALES <br><span class="text-orange-600">DE LA SEMANA.</span></h2>
+                <div class="mt-4 md:mt-0 md:text-right">
+                    <span id="precio-menu" class="text-5xl font-black italic text-white"></span>
+                    <p class="text-[9px] font-black uppercase text-gray-500 tracking-widest">Menú completo</p>
+                </div>
+            </div>
+            <div id="lista-menu" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </div>
+    </section>
+
+    <section id="galeria" class="py-24 px-6 max-w-6xl mx-auto">
+        <h2 class="text-3xl font-black-italic italic mb-12 reveal">GALERÍA <span class="text-orange-600">DE SABORES.</span></h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <img src="fotos/foto1.jpeg" class="gallery-img reveal" style="transition-delay: 0.1s" onerror="this.style.display='none'">
+            <img src="fotos/foto3.jpeg" class="gallery-img reveal" style="transition-delay: 0.2s" onerror="this.style.display='none'">
+            <img src="fotos/foto4.jpeg" class="gallery-img reveal" style="transition-delay: 0.3s" onerror="this.style.display='none'">
+        </div>
+    </section>
+
+    <section id="reseñas" class="py-24 px-6 max-w-6xl mx-auto border-t border-white/5">
+        <h2 class="text-3xl font-black-italic italic mb-12 reveal">OPINIONES <span class="text-orange-600">REALES.</span></h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div class="glass-card bg-[#111] p-8 rounded-[30px] border border-white/5 h-fit reveal">
+                <p class="text-[10px] font-black uppercase text-orange-600 mb-4 tracking-widest italic">Déjanos tu reseña</p>
+                <div class="space-y-4">
+                    <input type="text" id="rev-nombre" placeholder="Tu nombre" class="input-review">
+                    <textarea id="rev-texto" placeholder="¿Qué tal estuvo todo?" class="input-review h-24 resize-none"></textarea>
+                    <div class="flex gap-2 justify-center py-2" id="rev-stars">
+                        <button onclick="setStar(1)" class="star-btn text-gray-600 hover:text-orange-500"><i class="fas fa-star"></i></button>
+                        <button onclick="setStar(2)" class="star-btn text-gray-600 hover:text-orange-500"><i class="fas fa-star"></i></button>
+                        <button onclick="setStar(3)" class="star-btn text-gray-600 hover:text-orange-500"><i class="fas fa-star"></i></button>
+                        <button onclick="setStar(4)" class="star-btn text-gray-600 hover:text-orange-500"><i class="fas fa-star"></i></button>
+                        <button onclick="setStar(5)" class="star-btn text-gray-600 hover:text-orange-500"><i class="fas fa-star"></i></button>
+                    </div>
+                    <button onclick="addReview()" class="w-full btn-orange py-3 rounded-xl font-black-italic italic text-xs uppercase tracking-widest">Publicar</button>
+                </div>
+            </div>
+            <div id="render-reviews" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 reveal">
+                </div>
+        </div>
+    </section>
+
+    <section id="contacto" class="py-24 px-6 bg-[#080808]">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-20">
+            <div class="reveal">
+                <h2 class="text-4xl font-black-italic italic mb-6 uppercase">¿DÓNDE <span class="text-orange-600">ESTAMOS?</span></h2>
+                <p class="text-gray-400 italic mb-8">Te esperamos con el café recién hecho y el mejor ambiente cubano. ¡Ven a visitarnos!</p>
+                
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-orange-600/10 flex items-center justify-center text-orange-600"><i class="fas fa-map-marker-alt"></i></div>
+                        <div><p class="text-[10px] font-black uppercase text-gray-500">Dirección</p><p class="text-sm font-bold italic">Av.Primero de Mayo 14 ,Las Palmas de Gran Canaria</p></div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-orange-600/10 flex items-center justify-center text-orange-600"><i class="fas fa-envelope"></i></div>
+                        <div><p class="text-[10px] font-black uppercase text-gray-500">Correo</p><p id="txt-email" class="text-sm font-bold italic">--</p></div>
+                    </div>
+                    <div class="flex gap-4 pt-4">
+                        <a id="link-ig" href="#" class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-orange-600 transition"><i class="fab fa-instagram"></i></a>
+                        <a id="link-fb" href="#" class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center hover:bg-orange-600 transition"><i class="fab fa-facebook-f"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal h-80 bg-white/5 rounded-[30px] overflow-hidden border border-white/5">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3037.66266490333!2d-3.7037902!3d40.4167754!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd42287e9748b0a9%3A0x6b3b2c28657688c2!2sPuerta%20del%20Sol!5e0!3m2!1ses!2ses!4v1700000000000" width="100%" height="100%" style="border:0; filter: invert(90%) grayscale(100%);" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 text-center border-t border-white/5">
+        <p class="text-gray-600 text-[9px] font-black uppercase tracking-[0.5em]">© 2024 COMO EN CASA - SABOR CUBANO</p>
+    </footer>
+
+    <script>
+        const clean = (str) => {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        };
+
+        let currentStars = 5;
+        function setStar(n) {
+            currentStars = n;
+            const btns = document.querySelectorAll('.star-btn');
+            btns.forEach((btn, idx) => {
+                btn.classList.toggle('text-orange-500', idx < n);
+                btn.classList.toggle('text-gray-600', idx >= n);
+            });
+        }
+
+        function renderReviews() {
+            const reviews = JSON.parse(localStorage.getItem('casa_reviews')) || [];
+            const container = document.getElementById('render-reviews');
+            
+            if (reviews.length === 0) {
+                container.innerHTML = `<p class="text-gray-600 italic text-xs col-span-2 text-center py-10">Aún no hay opiniones. ¡Sé el primero en compartir tu experiencia!</p>`;
+                return;
+            }
+
+            container.innerHTML = reviews.map(r => `
+                <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
+                    <div class="flex text-orange-500 text-[8px] mb-2">${'<i class="fas fa-star"></i>'.repeat(r.stars)}</div>
+                    <p class="text-xs italic text-gray-300 mb-3 leading-relaxed">"${clean(r.texto)}"</p>
+                    <p class="text-[9px] font-black uppercase tracking-widest text-orange-600">- ${clean(r.nombre)}</p>
+                </div>
+            `).join('');
+        }
+
+        function addReview() {
+            const nom = document.getElementById('rev-nombre').value;
+            const txt = document.getElementById('rev-texto').value;
+            if(!nom || !txt) return alert("Por favor, rellena todos los campos.");
+            
+            const reviews = JSON.parse(localStorage.getItem('casa_reviews')) || [];
+            reviews.unshift({ nombre: nom, texto: txt, stars: currentStars });
+            localStorage.setItem('casa_reviews', JSON.stringify(reviews.slice(0, 10)));
+            
+            document.getElementById('rev-nombre').value = "";
+            document.getElementById('rev-texto').value = "";
+            renderReviews();
+            alert("¡Gracias por tu opinión!");
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const config = JSON.parse(localStorage.getItem('casa_cfg')) || {};
+            const menuS = JSON.parse(localStorage.getItem('casa_menu_s')) || { status: 'off' };
+
+            const checkStatus = () => {
+                const now = new Date();
+                const cur = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+                const badge = document.getElementById('status-badge');
+                const openTime = clean(config.o || "00:00");
+                const closeTime = clean(config.c || "23:59");
+                if (cur >= openTime && cur <= closeTime) {
+                    badge.innerHTML = `<span class="bg-green-600/10 text-green-500 border border-green-500/20 px-6 py-2 rounded-full text-[10px] font-black italic uppercase tracking-widest">Abierto Ahora</span>`;
+                } else {
+                    badge.innerHTML = `<span class="bg-red-600/10 text-red-500 border border-red-500/20 px-6 py-2 rounded-full text-[10px] font-black italic uppercase tracking-widest">Cerrado</span>`;
+                }
+            };
+            checkStatus();
+            renderReviews();
+            setStar(5);
+
+            if (menuS.status === 'on' && Array.isArray(menuS.items)) {
+                document.getElementById('menu-semanal').classList.remove('hidden');
+                document.getElementById('precio-menu').innerText = clean(menuS.precio || "");
+                document.getElementById('lista-menu').innerHTML = menuS.items.map(i => `
+                    <div class="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
+                        <i class="fas fa-check text-orange-600 text-[10px]"></i>
+                        <span class="font-bold italic uppercase text-sm tracking-wide">${clean(i)}</span>
+                    </div>
+                `).join('');
+            }
+
+            if(config.wa) document.getElementById('nav-wa').href = `https://wa.me/${clean(config.wa).replace(/\s/g, '')}`;
+            if(config.mail) document.getElementById('txt-email').innerText = clean(config.mail);
+            if(config.ig) document.getElementById('link-ig').href = `https://instagram.com/${clean(config.ig).replace('@','')}`;
+            if(config.fb) document.getElementById('link-fb').href = clean(config.fb);
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(r => observer.observe(r));
+        });
+    </script>
+</body>
+</html>

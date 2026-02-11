@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Carta | Como en Casa</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,900;1,400;1,900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #050505; color: #fff; scroll-behavior: smooth; }
+        .font-black-italic { font-weight: 900; font-style: italic; text-transform: uppercase; }
+        .fade-in { animation: fadeIn 0.8s ease forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .glass-card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 1.2rem; transition: 0.3s; }
+        .glass-card:hover { border-color: #ea580c; }
+
+        .price-badge {
+            background: rgba(234, 88, 12, 0.1); color: #ea580c; font-size: 10px; font-weight: 900;
+            padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(234, 88, 12, 0.2); text-transform: uppercase;
+        }
+
+        #menu-semanal-container {
+            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+            border: 2px solid #ea580c;
+            box-shadow: 0 0 20px rgba(234, 88, 12, 0.2);
+        }
+    </style>
+</head>
+<body class="p-6 md:p-12 max-w-5xl mx-auto">
+
+    <header class="text-center mb-12 fade-in">
+        <h1 class="text-5xl font-black-italic italic leading-none">NUESTRA <br><span class="text-orange-600">CARTA.</span></h1>
+    </header>
+
+    <div id="render-menu-semanal" class="mb-20 fade-in" style="animation-delay: 0.1s"></div>
+
+    <div id="carta-render" class="space-y-16"></div>
+
+    <div class="mt-20 text-center pb-10">
+        <a href="index.html" class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-orange-600 transition">
+            <i class="fas fa-arrow-left mr-2"></i> Volver al Inicio
+        </a>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyAER8_0CqDM9YGIXWc27yPQTnbjEtdPX8g",
+            authDomain: "como-en-casa-web.firebaseapp.com",
+            databaseURL: "https://como-en-casa-web-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "como-en-casa-web",
+            storageBucket: "como-en-casa-web.firebasestorage.app",
+            messagingSenderId: "379752106262",
+            appId: "1:379752106262:web:d0f3fde6d792b9a96f6837"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const dbRef = firebase.database();
+
+        const clean = (str) => {
+            if (!str) return "";
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        };
+
+        const formatPrices = (item) => {
+            if (item.cat === 'bebida') return `<span class="price-badge">${clean(item.p.u)}€</span>`;
+            if (item.cat === 'desayuno') {
+                return `<div class="flex gap-2">
+                    ${item.p.pulga ? `<span class="price-badge">P: ${clean(item.p.pulga)}€</span>` : ''}
+                    ${item.p.boca ? `<span class="price-badge">B: ${clean(item.p.boca)}€</span>` : ''}
+                </div>`;
+            }
+            let tags = [];
+            if (item.p.t) tags.push(`<span class="price-badge">Tapa: ${clean(item.p.t)}€</span>`);
+            if (item.p.r) tags.push(`<span class="price-badge">Ración: ${clean(item.p.r)}€</span>`);
+            if (item.p.c) tags.push(`<span class="price-badge">Compl: ${clean(item.p.c)}€</span>`);
+            if (!item.p.t && !item.p.r && !item.p.c && item.p.u) {
+                tags.push(`<span class="price-badge">${clean(item.p.u)}€</span>`);
+            }
+            return `<div class="flex flex-wrap gap-2 justify-end">${tags.join('')}</div>`;
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. ESCUCHAR CARTA Y CATEGORÍAS
+            dbRef.ref().on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                const db = data.db || [];
+                const categorias = data.cats || [
+                    { id: 'bebida', name: 'Cafés & Bebidas' },
+                    { id: 'desayuno', name: 'Desayunos (Pulgas y Bocatas)' },
+                    { id: 'entrante', name: 'Entrantes' },
+                    { id: 'almuerzo', name: 'Almuerzos' },
+                    { id: 'postres', name: 'Postres' }
+                ];
+                const menuS = data.menu_s || { precio: '', items: [], status: 'off' };
+
+                // --- RENDER MENÚ SEMANAL ---
+                const semanalDiv = document.getElementById('render-menu-semanal');
+                if (menuS.status === 'on' && Array.isArray(menuS.items) && menuS.items.length > 0) {
+                    semanalDiv.innerHTML = `
+                        <div id="menu-semanal-container" class="p-8 rounded-[30px] relative overflow-hidden">
+                            <div class="absolute top-4 right-6 text-orange-600 opacity-20 text-6xl"><i class="fas fa-star"></i></div>
+                            <h2 class="text-orange-600 font-black-italic italic text-2xl mb-2">MENÚ DE LA SEMANA</h2>
+                            <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-6">Selección especial de platos</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-3 mb-8">
+                                ${menuS.items.map(plato => `
+                                    <div class="flex items-center gap-3 border-b border-white/5 py-2">
+                                        <i class="fas fa-check text-orange-600 text-[10px]"></i>
+                                        <span class="font-bold italic uppercase text-sm">${clean(plato)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <span class="text-[9px] font-black text-gray-500 uppercase">Precio menú completo</span>
+                                <span class="text-3xl font-black text-white italic">${clean(menuS.precio)}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    semanalDiv.innerHTML = "";
+                }
+
+                // --- RENDER CARTA DINÁMICA ---
+                const container = document.getElementById('carta-render');
+                let finalHTML = "";
+                
+                categorias.forEach(cat => {
+                    const productos = db.filter(p => p && p.cat === cat.id);
+                    if (productos.length > 0) {
+                        finalHTML += `
+                            <section class="fade-in">
+                                <h2 class="text-2xl font-black-italic italic uppercase border-l-4 border-orange-600 pl-4 mb-6">${clean(cat.name)}</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    ${productos.map(p => `
+                                        <div class="glass-card flex justify-between items-center">
+                                            <span class="font-bold italic uppercase text-sm">${clean(p.name)}</span>
+                                            ${formatPrices(p)}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </section>
+                        `;
+                    }
+                });
+
+                container.innerHTML = finalHTML || `<p class="text-center text-gray-600 font-bold italic uppercase tracking-widest py-10">Cargando delicias...</p>`;
+            });
+        });
+    </script>
+</body>
+</html>

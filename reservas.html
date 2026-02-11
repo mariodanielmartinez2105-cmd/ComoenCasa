@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservar Mesa | Como en Casa</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,900;1,400;1,900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #050505; color: #fff; }
+        .font-black-italic { font-weight: 900; font-style: italic; text-transform: uppercase; }
+        .input-reserva { background: #111; border: 1px solid #222; border-radius: 15px; padding: 15px; width: 100%; color: white; outline: none; transition: 0.3s; }
+        .input-reserva:focus { border-color: #ea580c; background: #151515; }
+        .btn-person { background: #111; border: 1px solid #222; border-radius: 12px; padding: 10px; transition: 0.3s; font-weight: 900; }
+        .btn-person.active { background: #ea580c; border-color: #ea580c; }
+        .fade-in { animation: fadeIn 0.8s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="p-6 md:p-12 max-w-2xl mx-auto">
+
+    <header class="text-center mb-12 fade-in">
+        <h1 class="text-5xl font-black-italic italic leading-none uppercase">RESERVAR <br><span class="text-orange-600">MESA.</span></h1>
+        <p class="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] mt-4">Asegura tu lugar en nuestra mesa cubana</p>
+    </header>
+
+    <div class="space-y-8 fade-in" style="animation-delay: 0.2s">
+        <section>
+            <label class="text-[10px] font-black uppercase text-gray-500 mb-4 block tracking-widest">¿Cuántas personas?</label>
+            <div class="grid grid-cols-4 gap-3" id="person-selector">
+                <button onclick="setPersons(1)" class="btn-person active">1</button>
+                <button onclick="setPersons(2)" class="btn-person">2</button>
+                <button onclick="setPersons(3)" class="btn-person">3</button>
+                <button onclick="setPersons(4)" class="btn-person">4</button>
+                <button onclick="setPersons(5)" class="btn-person">5</button>
+                <button onclick="setPersons(6)" class="btn-person">6</button>
+                <button onclick="setPersons(7)" class="btn-person">7</button>
+                <button onclick="setPersons(8)" class="btn-person">8+</button>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <label class="text-[10px] font-black uppercase text-gray-500 mb-2 block tracking-widest">Tus datos</label>
+            <input type="text" id="res-nombre" placeholder="Nombre completo" class="input-reserva">
+            <input type="tel" id="res-tel" placeholder="Teléfono de contacto" class="input-reserva">
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-500 mb-2 block tracking-widest">Día</label>
+                <input type="date" id="res-fecha" class="input-reserva">
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-500 mb-2 block tracking-widest">Hora</label>
+                <select id="res-hora" class="input-reserva">
+                    <option value="12:00">12:00</option>
+                    <option value="12:30">12:30</option>
+                    <option value="13:00">13:00</option>
+                    <option value="13:30">13:30</option>
+                    <option value="14:00">14:00</option>
+                    <option value="14:30">14:30</option>
+                    <option value="15:00">15:00</option>
+                    <option value="15:30">15:30</option>
+                </select>
+            </div>
+        </section>
+
+        <button onclick="enviarReserva()" class="w-full bg-orange-600 py-5 rounded-[20px] font-black-italic italic text-sm uppercase tracking-widest shadow-xl shadow-orange-600/20 hover:scale-[1.02] transition active:scale-95"> Confirmar Reserva </button>
+    </div>
+
+    <div class="mt-12 text-center">
+        <a href="index.html" class="text-[9px] font-black uppercase tracking-[0.3em] text-gray-600 hover:text-orange-600 transition"> <i class="fas fa-arrow-left mr-2"></i> Volver </a>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyAER8_0CqDM9YGIXWc27yPQTnbjEtdPX8g",
+            authDomain: "como-en-casa-web.firebaseapp.com",
+            databaseURL: "https://como-en-casa-web-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "como-en-casa-web",
+            storageBucket: "como-en-casa-web.firebasestorage.app",
+            messagingSenderId: "379752106262",
+            appId: "1:379752106262:web:d0f3fde6d792b9a96f6837"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const dbRef = firebase.database();
+
+        let numPersonas = 1;
+
+        function setPersons(n) {
+            numPersonas = n;
+            const btns = document.querySelectorAll('.btn-person');
+            btns.forEach((btn, idx) => {
+                if (idx + 1 === n) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        }
+
+        function enviarReserva() {
+            const nombre = document.getElementById('res-nombre').value;
+            const tel = document.getElementById('res-tel').value;
+            const fecha = document.getElementById('res-fecha').value;
+            const hora = document.getElementById('res-hora').value;
+
+            if (!nombre || !tel || !fecha) {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+
+            // Crear objeto reserva
+            const nuevaReserva = {
+                id: Date.now(),
+                nombre: nombre,
+                tel: tel,
+                personas: numPersonas,
+                fecha: fecha,
+                hora: hora,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            // Guardar en Firebase
+            dbRef.ref('reservas').push(nuevaReserva).then(() => {
+                alert("¡Reserva confirmada! Te esperamos.");
+                window.location.href = "index.html";
+            }).catch(error => {
+                console.error("Error al reservar:", error);
+                alert("Hubo un problema. Por favor, llámanos directamente.");
+            });
+        }
+
+        // Bloquear fechas pasadas en el calendario
+        document.getElementById('res-fecha').min = new Date().toISOString().split("T")[0];
+    </script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Master | Como en Casa</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,900;1,400;1,900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #050505; color: #fff; overflow-x: hidden; }
+        .font-black-italic { font-weight: 900; font-style: italic; text-transform: uppercase; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .glass-card { background: #111; border: 1px solid #222; border-radius: 25px; padding: 1.5rem; }
+        .input-master { background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 12px; width: 100%; color: white; outline: none; font-size: 13px; }
+        .input-master:focus { border-color: #ea580c; }
+        .sidebar-btn { width: 100%; text-align: left; padding: 12px 15px; border-radius: 12px; font-weight: 900; font-size: 10px; text-transform: uppercase; transition: 0.3s; color: #555; margin-bottom: 5px; }
+        .sidebar-btn.active { background: #ea580c; color: #fff; }
+        #lock-screen { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+    <div id="lock-screen">
+        <div class="w-72 text-center">
+            <h1 class="text-2xl font-black-italic italic mb-6">ADMIN <span class="text-orange-600">MASTER</span></h1>
+            <input type="password" id="admin-pass" placeholder="Contraseña" class="input-master text-center mb-4 border-orange-900">
+            <button onclick="unlock()" class="w-full bg-orange-600 py-4 rounded-xl font-black-italic italic text-xs uppercase">Entrar</button>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="hidden min-h-screen flex flex-col md:flex-row">
+        <aside class="w-full md:w-64 bg-black p-6 border-r border-white/5 space-y-8">
+            <h2 class="text-xl font-black-italic italic text-center md:text-left">COMO <span class="text-orange-600">EN CASA</span></h2>
+            <nav>
+                <button onclick="showTab('tab-db')" class="sidebar-btn active" id="btn-tab-db"><i class="fas fa-utensils mr-2"></i> Gestión de Carta</button>
+                <button onclick="showTab('tab-cats')" class="sidebar-btn" id="btn-tab-cats"><i class="fas fa-tags mr-2"></i> Categorías</button>
+                <button onclick="showTab('tab-semanal')" class="sidebar-btn" id="btn-tab-semanal"><i class="fas fa-calendar-alt mr-2"></i> Menú Semanal</button>
+                <button onclick="showTab('tab-galeria')" class="sidebar-btn" id="btn-tab-galeria"><i class="fas fa-image mr-2"></i> Galería</button>
+                <button onclick="showTab('tab-reservas')" class="sidebar-btn" id="btn-tab-reservas"><i class="fas fa-bell mr-2"></i> Reservas</button>
+                <button onclick="showTab('tab-contacto')" class="sidebar-btn" id="btn-tab-contacto"><i class="fas fa-cog mr-2"></i> Configuración</button>
+                <button onclick="salir()" class="sidebar-btn text-red-600 mt-10"><i class="fas fa-sign-out-alt mr-2"></i> Salir</button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-6 md:p-12 overflow-y-auto">
+            
+            <section id="tab-db" class="tab-content active space-y-6">
+                <h3 class="text-3xl font-black-italic italic text-orange-600 uppercase">La Carta</h3>
+                <div class="glass-card">
+                    <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
+                        <select id="p-cat" class="input-master md:col-span-1" onchange="updatePriceInputs()"></select>
+                        <input type="text" id="p-name" placeholder="Nombre del plato..." class="input-master md:col-span-1">
+                        <div id="price-area" class="md:col-span-3 flex gap-2"></div>
+                        <button onclick="addProduct()" class="bg-orange-600 font-black italic text-[10px] rounded-xl uppercase h-12">Añadir</button>
+                    </div>
+                </div>
+                <div id="render-db-organized" class="space-y-8 mt-10"></div>
+            </section>
+
+            <section id="tab-cats" class="tab-content space-y-6">
+                <h3 class="text-3xl font-black-italic italic text-orange-600 uppercase">Categorías</h3>
+                <div class="glass-card mb-6">
+                    <div class="flex gap-3">
+                        <input type="text" id="new-cat-name" placeholder="Nombre de la categoría..." class="input-master">
+                        <button onclick="addCategory()" class="bg-orange-600 px-6 rounded-xl font-black italic text-[10px] uppercase">Crear</button>
+                    </div>
+                </div>
+                <div id="render-cats-list" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            </section>
+
+            <section id="tab-semanal" class="tab-content space-y-6">
+                <div class="flex justify-between items-end">
+                    <h3 class="text-3xl font-black-italic italic text-orange-600 uppercase">Menú Semanal</h3>
+                </div>
+                <div class="glass-card">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-gray-500 ml-2">Precio del Menú</label>
+                            <input type="text" id="ms-precio" placeholder="Ej: 12€" class="input-master">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-gray-500 ml-2">Estado</label>
+                            <select id="ms-status" class="input-master"><option value="on">Publicado</option><option value="off">Oculto</option></select>
+                        </div>
+                    </div>
+                    <div id="ms-selector-organized" class="space-y-6 p-4 bg-black/40 rounded-xl max-h-[500px] overflow-y-auto border border-white/5"></div>
+                    <button onclick="saveMenuS()" class="w-full bg-white text-black py-4 rounded-xl font-black italic mt-6 uppercase text-xs">Guardar Menú Semanal</button>
+                </div>
+            </section>
+
+            <section id="tab-galeria" class="tab-content space-y-6">
+                <h3 class="text-3xl font-black-italic italic text-orange-600 uppercase">Galería</h3>
+                <div class="glass-card flex gap-3"><input type="text" id="gal-url" placeholder="URL de la imagen" class="input-master"><button onclick="addFoto()" class="bg-orange-600 px-6 rounded-xl font-black italic uppercase text-[10px]">Subir</button></div>
+                <div id="render-galeria" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6"></div>
+            </section>
+
+            <section id="tab-reservas" class="tab-content space-y-6">
+                <h3 class="text-3xl font-black-italic italic text-orange-600 uppercase">Reservas</h3>
+                <div id="render-reservas" class="grid gap-4"></div>
+            </section>
+
+            <section id="tab-contacto" class="tab-content space-y-6">
+                <h3 class="text-3xl font-black-italic italic text-orange-600 uppercase">Configuración</h3>
+                <div class="glass-card grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2"><label class="text-[10px] font-black uppercase text-gray-500">Horarios</label>
+                    <div class="flex gap-2"><input type="time" id="h-open" class="input-master"><input type="time" id="h-close" class="input-master"></div></div>
+                    <div><label class="text-[10px] font-black uppercase text-gray-500">WhatsApp</label><input type="text" id="c-wa" class="input-master"></div>
+                    <div><label class="text-[10px] font-black uppercase text-gray-500">Instagram</label><input type="text" id="c-ig" class="input-master"></div>
+                    <div><label class="text-[10px] font-black uppercase text-gray-500">Facebook</label><input type="text" id="c-fb" class="input-master"></div>
+                    <div><label class="text-[10px] font-black uppercase text-gray-500">Email</label><input type="email" id="c-mail" class="input-master"></div>
+                    <button onclick="saveGeneral()" class="md:col-span-2 bg-orange-600 py-4 rounded-xl font-black italic uppercase">Actualizar Datos</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        const CLAVE_B64 = "Y2FzYTIwMjQ="; // "casa2024"
+        const firebaseConfig = {
+            apiKey: "AIzaSyAER8_0CqDM9YGIXWc27yPQTnbjEtdPX8g",
+            authDomain: "como-en-casa-web.firebaseapp.com",
+            databaseURL: "https://como-en-casa-web-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "como-en-casa-web",
+            storageBucket: "como-en-casa-web.firebasestorage.app",
+            messagingSenderId: "379752106262",
+            appId: "1:379752106262:web:d0f3fde6d792b9a96f6837"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const dbRef = firebase.database();
+
+        const clean = (t) => { if(!t) return ""; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; };
+
+        let localDB = [];
+        let localCats = [];
+        let localMenuS = {};
+
+        function unlock() {
+            if(btoa(document.getElementById('admin-pass').value) === CLAVE_B64) {
+                sessionStorage.setItem('casa_auth', 'true');
+                document.getElementById('lock-screen').style.display = "none";
+                document.getElementById('admin-panel').classList.remove('hidden');
+                init();
+            } else { alert("Acceso Incorrecto"); }
+        }
+
+        function init() {
+            // Escuchar Categorías
+            dbRef.ref('cats').on('value', s => {
+                localCats = s.val() || [
+                    { id: 'bebida', name: 'Bebidas' }, { id: 'desayuno', name: 'Desayunos' }, 
+                    { id: 'entrante', name: 'Entrantes' }, { id: 'almuerzo', name: 'Almuerzos' }, { id: 'postres', name: 'Postres' }
+                ];
+                renderCatOptions(); renderCatsList(); renderDB();
+            });
+
+            // Escuchar Carta
+            dbRef.ref('db').on('value', s => { localDB = s.val() || []; renderDB(); });
+
+            // Escuchar Menú Semanal
+            dbRef.ref('menu_s').on('value', s => { localMenuS = s.val() || { items: [] }; loadMenuConfig(); });
+
+            // Escuchar Galería
+            dbRef.ref('galeria').on('value', s => { renderGaleria(s.val() || []); });
+
+            // Escuchar Reservas
+            dbRef.ref('reservas').on('value', s => { renderReservas(s.val() || []); });
+
+            // Escuchar Config General
+            dbRef.ref('config').on('value', s => { loadGeneralConfig(s.val() || {}); });
+        }
+
+        // CATEGORÍAS
+        function renderCatOptions() {
+            document.getElementById('p-cat').innerHTML = localCats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            updatePriceInputs();
+        }
+        function renderCatsList() {
+            document.getElementById('render-cats-list').innerHTML = localCats.map(c => `
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex justify-between items-center">
+                    <span class="font-bold italic uppercase text-xs">${c.name}</span>
+                    <button onclick="deleteCat('${c.id}')" class="text-red-500"><i class="fas fa-trash text-xs"></i></button>
+                </div>
+            `).join('');
+        }
+        function addCategory() {
+            const name = document.getElementById('new-cat-name').value;
+            if(!name) return;
+            const id = name.toLowerCase().replace(/\s/g, '-');
+            localCats.push({ id, name: clean(name) });
+            dbRef.ref('cats').set(localCats);
+            document.getElementById('new-cat-name').value = "";
+        }
+        function deleteCat(id) {
+            if(confirm("Se borrarán los platos de esta categoría. ¿Seguro?")) {
+                const newCats = localCats.filter(c => c.id !== id);
+                const newDB = localDB.filter(p => p.cat !== id);
+                dbRef.ref('cats').set(newCats);
+                dbRef.ref('db').set(newDB);
+            }
+        }
+
+        // LA CARTA
+        function updatePriceInputs() {
+            const cat = document.getElementById('p-cat').value;
+            const area = document.getElementById('price-area');
+            if(cat === 'bebida' || cat === 'postres') area.innerHTML = `<input type="text" id="pr-u" placeholder="Precio €" class="input-master">`;
+            else if(cat === 'desayuno') area.innerHTML = `<input type="text" id="pr-p" placeholder="Pulg. €" class="input-master"><input type="text" id="pr-b" placeholder="Boc. €" class="input-master">`;
+            else area.innerHTML = `<input type="text" id="pr-t" placeholder="Tapa €" class="input-master"><input type="text" id="pr-r" placeholder="Rac. €" class="input-master"><input type="text" id="pr-c" placeholder="Compl. €" class="input-master">`;
+        }
+        function addProduct() {
+            const name = clean(document.getElementById('p-name').value);
+            if(!name) return;
+            let p = {};
+            if(document.getElementById('pr-u')) p = { u: clean(document.getElementById('pr-u').value) };
+            else if(document.getElementById('pr-p')) p = { pulga: clean(document.getElementById('pr-p').value), boca: clean(document.getElementById('pr-b').value) };
+            else p = { t: clean(document.getElementById('pr-t').value), r: clean(document.getElementById('pr-r').value), c: clean(document.getElementById('pr-c').value) };
+            localDB.push({ id: Date.now(), cat: document.getElementById('p-cat').value, name, p });
+            dbRef.ref('db').set(localDB);
+            document.getElementById('p-name').value = '';
+        }
+        function renderDB() {
+            const container = document.getElementById('render-db-organized');
+            container.innerHTML = "";
+            localCats.forEach(cat => {
+                const platos = localDB.filter(p => p.cat === cat.id);
+                if(platos.length > 0) {
+                    const section = document.createElement('div');
+                    section.innerHTML = `<h4 class="text-orange-600 font-black-italic italic text-sm mb-4 border-b border-orange-600/20 pb-2">${cat.name}</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-3">${platos.map(p => `<div class="bg-white/5 p-4 rounded-xl flex justify-between items-center border border-white/5"><div><p class="font-bold italic text-sm">${p.name}</p></div><button onclick="deleteProduct(${p.id})" class="text-red-900"><i class="fas fa-trash-alt text-xs"></i></button></div>`).join('')}</div>`;
+                    container.appendChild(section);
+                }
+            });
+        }
+        function deleteProduct(id) {
+            const newDB = localDB.filter(i => i.id !== id);
+            dbRef.ref('db').set(newDB);
+        }
+
+        // MENÚ SEMANAL
+        function renderMenuOrganized() {
+            const container = document.getElementById('ms-selector-organized');
+            container.innerHTML = "";
+            localCats.filter(c => c.id !== 'bebida').forEach(cat => {
+                const platos = localDB.filter(p => p.cat === cat.id);
+                if(platos.length > 0) {
+                    const group = document.createElement('div');
+                    group.innerHTML = `<p class="text-[9px] font-black text-orange-600 uppercase mb-3 tracking-widest">${cat.name}</p><div class="grid grid-cols-2 md:grid-cols-3 gap-2">${platos.map(p => `<label class="flex items-center gap-2 bg-white/5 p-3 rounded-lg border border-white/5 cursor-pointer"><input type="checkbox" value="${p.name}" ${(localMenuS.items || []).includes(p.name) ? 'checked' : ''} class="accent-orange-600"><span class="text-[10px] font-bold truncate italic">${p.name}</span></label>`).join('')}</div>`;
+                    container.appendChild(group);
+                }
+            });
+        }
+        function loadMenuConfig() {
+            document.getElementById('ms-precio').value = localMenuS.precio || '';
+            document.getElementById('ms-status').value = localMenuS.status || 'off';
+        }
+        function saveMenuS() {
+            const selected = Array.from(document.querySelectorAll('#ms-selector-organized input:checked')).map(el => el.value);
+            dbRef.ref('menu_s').set({
+                precio: clean(document.getElementById('ms-precio').value),
+                items: selected,
+                status: document.getElementById('ms-status').value
+            });
+            alert("Menú Semanal actualizado");
+        }
+
+        // GALERÍA
+        function addFoto() {
+            const url = document.getElementById('gal-url').value;
+            if(!url) return;
+            dbRef.ref('galeria').push({ url: clean(url) });
+            document.getElementById('gal-url').value = "";
+        }
+        function renderGaleria(fotos) {
+            const container = document.getElementById('render-galeria');
+            container.innerHTML = Object.entries(fotos).map(([key, f]) => `<div class="relative group aspect-square rounded-xl overflow-hidden"><img src="${f.url}" class="w-full h-full object-cover"><button onclick="deleteFoto('${key}')" class="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 flex items-center justify-center font-black text-xs">BORRAR</button></div>`).join('');
+        }
+        function deleteFoto(key) { dbRef.ref('galeria/' + key).remove(); }
+
+        // RESERVAS
+        function renderReservas(reservas) {
+            const container = document.getElementById('render-reservas');
+            const list = Object.entries(reservas);
+            container.innerHTML = list.length ? list.map(([key, r]) => `<div class="glass-card flex justify-between items-center"><div><p class="text-orange-600 font-black italic text-sm">${clean(r.nombre)}</p><p class="text-[9px] font-bold text-gray-400 uppercase">${r.fecha} | ${r.hora}h</p></div><button onclick="delRes('${key}')" class="text-red-500 text-xs uppercase font-black">Eliminar</button></div>`).join('') : '<p class="text-gray-600 italic">No hay reservas activas.</p>';
+        }
+        function delRes(key) { dbRef.ref('reservas/' + key).remove(); }
+
+        // CONFIGURACIÓN
+        function loadGeneralConfig(c) {
+            document.getElementById('h-open').value = c.o || '';
+            document.getElementById('h-close').value = c.c || '';
+            document.getElementById('c-wa').value = c.wa || '';
+            document.getElementById('c-mail').value = c.mail || '';
+            document.getElementById('c-ig').value = c.ig || '';
+            document.getElementById('c-fb').value = c.fb || '';
+        }
+        function saveGeneral() {
+            dbRef.ref('config').set({
+                o: document.getElementById('h-open').value,
+                c: document.getElementById('h-close').value,
+                wa: clean(document.getElementById('c-wa').value),
+                mail: clean(document.getElementById('c-mail').value),
+                ig: clean(document.getElementById('c-ig').value),
+                fb: clean(document.getElementById('c-fb').value)
+            });alert("Configuración general guardada");
+        }
+
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-'+id).classList.add('active');
+            if(id === 'tab-semanal') renderMenuOrganized();
+        }
+
+        function salir() { sessionStorage.removeItem('casa_auth'); location.reload(); }
+        if(sessionStorage.getItem('casa_auth') === 'true') { 
+            document.getElementById('lock-screen').style.display = "none"; 
+            document.getElementById('admin-panel').classList.remove('hidden'); 
+            init(); 
+        }
+    </script>
+</body>
+</html>
