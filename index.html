@@ -15,17 +15,17 @@
         body { font-family: 'Poppins', sans-serif; background-color: #050505; color: #fff; scroll-behavior: smooth; }
         .font-black-italic { font-weight: 900; font-style: italic; text-transform: uppercase; }
         
-        /* SOLUCIÓN DEFINITIVA: Visible por defecto, animado solo si no está activo */
-        .reveal { 
-            transition: all 0.8s ease-out;
-            opacity: 1;
-            transform: translateY(0);
+        /* Efecto de movimiento base */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* FUERZA EL INICIO: Aparece con animación al cargar sin esperar al scroll */
+        #inicio .reveal {
+            animation: revealInit 0.8s ease-out forwards;
         }
-        
-        /* Solo se oculta si el JS aún no lo ha activado Y no es la parte inicial */
-        section:not(#inicio) .reveal:not(.active) { 
-            opacity: 0; 
-            transform: translateY(30px); 
+
+        @keyframes revealInit {
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .hero-bg {
@@ -59,13 +59,13 @@
     <section id="inicio" class="h-screen flex items-center justify-center hero-bg px-6 pt-20">
         <div class="text-center">
             <div id="status-badge" class="mb-6 reveal"></div>
-            <h1 class="text-6xl md:text-9xl font-black-italic italic leading-none reveal" style="transition-delay: 0.2s">
+            <h1 class="text-6xl md:text-9xl font-black-italic italic leading-none reveal" style="animation-delay: 0.2s">
                 EL SABOR <br><span class="text-orange-600">CUBANO.</span>
             </h1>
-            <p class="mt-6 text-gray-400 font-bold uppercase tracking-[0.4em] text-[10px] md:text-xs reveal" style="transition-delay: 0.4s">
+            <p class="mt-6 text-gray-400 font-bold uppercase tracking-[0.4em] text-[10px] md:text-xs reveal" style="animation-delay: 0.4s">
                 Cafetería & Auténtica Comida Casera Cubana en Las Palmas
             </p>
-            <div class="mt-12 flex flex-col md:flex-row gap-4 justify-center reveal" style="transition-delay: 0.6s">
+            <div class="mt-12 flex flex-col md:flex-row gap-4 justify-center reveal" style="animation-delay: 0.6s">
                 <a href="carta.html" class="btn-orange px-12 py-5 rounded-full font-black-italic italic text-sm">Explorar Carta</a>
                 <a href="reservas.html" class="bg-white/5 backdrop-blur-md px-12 py-5 rounded-full font-black-italic italic text-sm border border-white/10 hover:bg-white/10 transition">Reservar Mesa</a>
             </div>
@@ -222,9 +222,6 @@
                 if(r.getBoundingClientRect().top < window.innerHeight - 50) r.classList.add('active');
             });
         });
-
-        // Disparar scroll una vez al cargar para activar lo que ya esté en pantalla
-        setTimeout(() => window.dispatchEvent(new Event('scroll')), 500);
 
         init();
     </script>
