@@ -147,13 +147,16 @@
                 if(config.direccion) document.getElementById('txt-dir').innerText = config.direccion;
                 if(config.maps_link) document.getElementById('link-maps-dir').href = config.maps_link;
 
-                // --- UNICO CAMBIO: Lógica para que el mapa no falle ---
+                // Lógica de mapa mejorada para marcador rojo
                 if(config.maps_embed) {
                     let mapUrl = config.maps_embed.trim();
+                    // Si el usuario pega el iframe entero, extraemos solo la URL
                     if(mapUrl.includes('<iframe')) {
-                        const match = mapUrl.match(/src="([^"]+)"/);
-                        mapUrl = match ? match[1] : "";
+                        const match = mapUrl.match(/src="?([^"\s]+)"?/);
+                        mapUrl = match ? match[1] : mapUrl;
                     }
+                    // Reemplazamos los caracteres escapados para que Google Maps reconozca el marcador
+                    mapUrl = mapUrl.replace(/&amp;/g, '&');
                     document.getElementById('iframe-mapa').src = mapUrl;
                 }
             });
