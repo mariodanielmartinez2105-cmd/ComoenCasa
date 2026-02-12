@@ -301,7 +301,7 @@
         }
         function delRes(key) { dbRef.ref('reservas/' + key).remove(); }
 
-        // CONFIGURACIÓN GENERAL (CORREGIDA LA LÓGICA DE GUARDADO DEL MAPA)
+        // CONFIGURACIÓN GENERAL
         function loadGeneralConfig(c) {
             document.getElementById('h-open').value = c.o || '';
             document.getElementById('h-close').value = c.c || '';
@@ -315,8 +315,8 @@
         }
 
         function saveGeneral() {
-            // Recogemos el valor tal cual lo pega el usuario
-            let embedValue = document.getElementById('c-maps-embed').value.trim();
+            // MEJORA SEGURA: Filtramos etiquetas HTML pero permitimos símbolos de URL de Google Maps
+            const safeMap = (url) => url ? url.replace(/[<>]/g, "").trim() : "";
 
             dbRef.ref('config').set({
                 o: document.getElementById('h-open').value,
@@ -327,7 +327,7 @@
                 fb: clean(document.getElementById('c-fb').value),
                 direccion: clean(document.getElementById('c-dir').value),
                 maps_link: clean(document.getElementById('c-maps-link').value),
-                maps_embed: embedValue // Guardamos el texto del mapa sin alterar para que la web lo procese
+                maps_embed: safeMap(document.getElementById('c-maps-embed').value)
             });
             alert("Configuración web actualizada correctamente");
         }
