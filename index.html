@@ -26,8 +26,6 @@
         .btn-orange:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(234, 88, 12, 0.4); }
         .gallery-img { width: 100%; height: 300px; object-fit: cover; border-radius: 20px; transition: 0.5s; filter: grayscale(40%); }
         .gallery-img:hover { filter: grayscale(0%); transform: scale(1.02); }
-        .input-review { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; outline: none; width: 100%; font-size: 13px; }
-        .input-review:focus { border-color: #ea580c; }
     </style>
 </head>
 <body>
@@ -80,25 +78,20 @@
         <div id="render-galeria" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
     </section>
 
-    <section id="reseñas" class="py-24 px-6 max-w-6xl mx-auto border-t border-white/5">
-        <h2 class="text-3xl font-black-italic italic mb-12 reveal">OPINIONES <span class="text-orange-600">REALES.</span></h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div class="glass-card bg-[#111] p-8 rounded-[30px] border border-white/5 h-fit reveal">
-                <p class="text-[10px] font-black uppercase text-orange-600 mb-4 tracking-widest italic">Déjanos tu reseña</p>
-                <div class="space-y-4">
-                    <input type="text" id="rev-nombre" placeholder="Tu nombre" class="input-review">
-                    <textarea id="rev-texto" placeholder="¿Qué tal estuvo todo?" class="input-review h-24 resize-none"></textarea>
-                    <div class="flex gap-2 justify-center py-2" id="rev-stars">
-                        <button onclick="setStar(1)" class="star-btn text-gray-600 hover:text-orange-500"><i class="fas fa-star"></i></button>
-                        <button onclick="setStar(2)" class="star-btn text-gray-600 hover:text-orange-500"><i class="fas fa-star"></i></button>
-                        <button onclick="setStar(3)" class="star-btn text-gray-600 hover:text-orange-500"><i class="fas fa-star"></i></button>
-                        <button onclick="setStar(4)" class="star-btn text-gray-600 hover:text-orange-500"><i class="fas fa-star"></i></button>
-                        <button onclick="setStar(5)" class="star-btn text-gray-600 hover:text-orange-500"><i class="fas fa-star"></i></button>
-                    </div>
-                    <button onclick="addReview()" class="w-full btn-orange py-3 rounded-xl font-black-italic italic text-xs uppercase tracking-widest">Publicar</button>
+    <section id="reseñas-google" class="py-24 px-6 max-w-4xl mx-auto border-t border-white/5 text-center">
+        <div class="reveal">
+            <h2 class="text-4xl font-black-italic italic mb-4 uppercase">¿TE GUSTÓ <span class="text-orange-600">LA EXPERIENCIA?</span></h2>
+            <p class="text-gray-400 text-xs uppercase tracking-[0.3em] mb-10 font-bold">Tu opinión nos ayuda a seguir brindando lo mejor de Cuba</p>
+            
+            <div class="bg-[#111] p-10 rounded-[40px] border border-white/5">
+                <div class="flex justify-center gap-1 text-orange-500 text-2xl mb-6">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                 </div>
+                <p class="text-lg italic mb-8 text-gray-200">"Únete a nuestros clientes satisfechos en Google y cuéntanos qué te pareció nuestra comida."</p>
+                <a id="link-google-reviews" href="#" target="_blank" class="inline-block btn-orange px-10 py-4 rounded-full font-black-italic italic text-xs tracking-widest uppercase">
+                    Escribir Reseña en Google <i class="fab fa-google ml-2"></i>
+                </a>
             </div>
-            <div id="render-reviews" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 reveal"></div>
         </div>
     </section>
 
@@ -164,14 +157,12 @@
                 const c = s.val() || {};
                 updateStatus(c);
                 
-                // WhatsApp con mensaje predeterminado
                 if(c.wa) {
                     const msg = encodeURIComponent("Hola, necesito una reserva");
                     const safeWa = clean(c.wa).replace(/\s/g, '');
                     document.getElementById('nav-wa').href = `https://wa.me/${safeWa}?text=${msg}`;
                 }
 
-                // Correo interactivo
                 if(c.mail) {
                     document.getElementById('txt-email').innerText = clean(c.mail);
                     document.getElementById('link-email').href = `mailto:${clean(c.mail)}`;
@@ -180,11 +171,14 @@
                 if(c.ig) document.getElementById('link-ig').href = c.ig.startsWith('http') ? c.ig : `https://instagram.com/${clean(c.ig).replace('@','')}`;
                 if(c.fb) document.getElementById('link-fb').href = c.fb;
                 if(c.direccion) document.getElementById('txt-direccion').innerText = clean(c.direccion);
-                if(c.maps_link) document.getElementById('link-maps-dir').href = c.maps_link;
                 
-                // Solución Mapa Interactivo
+                // Enlace a reseñas de Google usando el maps_link guardado
+                if(c.maps_link) {
+                    document.getElementById('link-maps-dir').href = c.maps_link;
+                    document.getElementById('link-google-reviews').href = c.maps_link; // El botón de reseñas usa el mismo enlace
+                }
+                
                 if(c.maps_embed) {
-                    // Si el usuario pega el código <iframe> completo por error, extraemos solo el src
                     let mapUrl = c.maps_embed;
                     if(mapUrl.includes('<iframe')) {
                         const match = mapUrl.match(/src="([^"]+)"/);
@@ -194,7 +188,6 @@
                 }
             });
 
-            // Menú Semanal
             dbRef.ref('menu_s').on('value', s => {
                 const m = s.val() || { status: 'off' };
                 const sec = document.getElementById('menu-semanal');
@@ -210,46 +203,12 @@
                 } else { sec.classList.add('hidden'); }
             });
 
-            // Galería
             dbRef.ref('galeria').on('value', s => {
                 const fotos = s.val() || {};
                 const container = document.getElementById('render-galeria');
                 const list = Object.values(fotos);
                 container.innerHTML = list.length ? list.map(f => `<img src="${f.url}" class="gallery-img reveal active">`).join('') : '<p class="text-gray-500 col-span-3 text-center italic">Próximamente más fotos...</p>';
             });
-
-            // Reseñas
-            dbRef.ref('public_reviews').limitToLast(6).on('value', s => {
-                const revs = s.val() || {};
-                const container = document.getElementById('render-reviews');
-                const list = Object.values(revs).reverse();
-                container.innerHTML = list.length ? list.map(r => `
-                    <div class="bg-white/5 p-6 rounded-3xl border border-white/5">
-                        <div class="flex text-orange-500 text-[8px] mb-2">${'<i class="fas fa-star"></i>'.repeat(r.stars)}</div>
-                        <p class="text-xs italic text-gray-300 mb-3 leading-relaxed">"${clean(r.texto)}"</p>
-                        <p class="text-[9px] font-black uppercase tracking-widest text-orange-600">- ${clean(r.nombre)}</p>
-                    </div>
-                `).join('') : '<p class="text-gray-600 text-center col-span-2">Sé el primero en opinar.</p>';
-            });
-        }
-
-        let currentStars = 5;
-        function setStar(n) {
-            currentStars = n;
-            document.querySelectorAll('.star-btn').forEach((btn, idx) => {
-                btn.classList.toggle('text-orange-500', idx < n);
-                btn.classList.toggle('text-gray-600', idx >= n);
-            });
-        }
-
-        function addReview() {
-            const nom = document.getElementById('rev-nombre').value;
-            const txt = document.getElementById('rev-texto').value;
-            if(!nom || !txt) return alert("Rellena todos los campos");
-            dbRef.ref('public_reviews').push({ nombre: nom, texto: txt, stars: currentStars, fecha: Date.now() });
-            document.getElementById('rev-nombre').value = "";
-            document.getElementById('rev-texto').value = "";
-            alert("¡Gracias por tu reseña!");
         }
 
         window.addEventListener('scroll', () => {
