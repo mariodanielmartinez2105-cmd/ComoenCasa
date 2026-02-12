@@ -43,7 +43,7 @@
         .wa-float {
             position: fixed; width: 60px; height: 60px; bottom: 20px; right: 20px;
             background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center;
-            font-size: 30px; box-shadow: 2px 2px 3px #999; z-index: 100;
+            font-size: 30px; box-shadow: 2px 2px 3px #999; z-index: 90;
             display: flex; align-items: center; justify-content: center;
             transition: 0.3s;
         }
@@ -55,6 +55,24 @@
     <a id="wa-btn-float" href="#" class="wa-float" target="_blank">
         <i class="fab fa-whatsapp"></i>
     </a>
+
+    <div id="cookie-banner" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-8 md:max-w-sm bg-[#111] border border-white/10 p-6 z-[100] rounded-[30px] shadow-2xl transform translate-y-[150%] transition-transform duration-700 backdrop-blur-xl">
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-orange-600/20 rounded-full flex items-center justify-center text-orange-600">
+                    <i class="fas fa-cookie-bite text-xl"></i>
+                </div>
+                <h3 class="font-black-italic italic text-sm uppercase tracking-widest text-white">Privacidad</h3>
+            </div>
+            <p class="text-[11px] text-gray-400 leading-relaxed font-medium">
+                Usamos cookies para mejorar tu experiencia y mostrarte mapas interactivos. Puedes aceptarlas o configurarlas en nuestra <a href="legal.html" class="text-orange-600 underline">política</a>.
+            </p>
+            <div class="flex flex-col gap-2 mt-2">
+                <button onclick="acceptAllCookies()" class="btn-orange w-full py-3 rounded-full font-black-italic italic text-[10px] uppercase tracking-widest text-white">Aceptar todas</button>
+                <button onclick="rejectCookies()" class="w-full py-3 rounded-full font-black-italic italic text-[10px] uppercase tracking-widest text-gray-400 hover:text-white transition bg-white/5 border border-white/5">Solo esenciales</button>
+            </div>
+        </div>
+    </div>
 
     <nav class="fixed top-0 w-full z-50 nav-glass px-6 py-4">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
@@ -168,6 +186,33 @@
         firebase.initializeApp(firebaseConfig);
         const dbRef = firebase.database();
 
+        // --- COOKIES LOGIC ---
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+        }
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i].trim();
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        function checkCookies() {
+            if (!getCookie('cc_res')) {
+                setTimeout(() => {
+                    document.getElementById('cookie-banner').style.transform = "translateY(0)";
+                }, 2000);
+            }
+        }
+        function acceptAllCookies() { setCookie('cc_res', 'all', 365); hideBanner(); }
+        function rejectCookies() { setCookie('cc_res', 'ess', 365); hideBanner(); }
+        function hideBanner() { document.getElementById('cookie-banner').style.transform = "translateY(150%)"; }
+
+        // --- FIREBASE & INIT ---
         const clean = (t) => { if(!t) return ""; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; };
 
         function updateStatus(config) {
@@ -184,6 +229,7 @@
         }
 
         function init() {
+            checkCookies();
             dbRef.ref('config').on('value', s => {
                 const c = s.val() || {};
                 updateStatus(c);
